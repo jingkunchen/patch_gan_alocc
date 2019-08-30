@@ -1,5 +1,4 @@
 # patch_gan_alocc
-patch_gan_alocc for anomaly detection
 <!-- If you'd like to use a logo instead uncomment this code and remove the text above this line
 
   ![Logo](http://blog.ebuystorm.com/aboutme/avatar.png)
