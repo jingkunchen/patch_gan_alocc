@@ -23,10 +23,10 @@ python3 test.py
 ## Information
 
 The whole model:
-![Screenshot 1](http://blog.ebuystorm.com/file/image/patch_gan_model.png)
+![Screenshot 1](http://blog.ebuystorm.com/file/image/patch_gan_alocc_model.png)
 
 The patch samples:
-![Screenshot 1](http://blog.ebuystorm.com/file/image/patch_gan_sample.png)
+![Screenshot 1](http://blog.ebuystorm.com/file/image/patch_gan_alocc_sample.png)
 
 ## Contributing
 
