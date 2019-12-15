@@ -29,7 +29,7 @@ from patchdiscrimator import PatchGanDiscriminator
 
 from utils import *
 from kh_tools import *
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 
 class ALOCC_Model():
@@ -95,7 +95,7 @@ class ALOCC_Model():
           logging.basicConfig(filename='ALOCC_loss.log', level=logging.INFO)
 
         if self.dataset_name == 'mnist':
-            X_train = np.load("/Users/chenjingkun/Documents/data/BraTS19/npy/25_100/health_train_25_100.npy")
+            X_train = np.load("/home/cvip/jingkun/data/BraTS19/npy/25_100/health_train_25_100.npy")
             X_train = X_train[:,:,:,np.newaxis]
             print(X_train.shape)
             self.data = X_train
@@ -342,4 +342,4 @@ class ALOCC_Model():
 
 if __name__ == '__main__':
     model = ALOCC_Model(dataset_name='mnist', input_height=32,input_width=32)
-    model.train(epochs=100, batch_size=128, sample_interval=500)
+    model.train(epochs=500, batch_size=128, sample_interval=500)
