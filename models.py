@@ -19,7 +19,6 @@ from keras import losses
 from keras.callbacks import TensorBoard
 from keras.utils import to_categorical
 import keras.backend as K
-import scipy
 import logging
 import matplotlib.pyplot as plt
 import os
@@ -30,11 +29,12 @@ from patchdiscrimator import PatchGanDiscriminator
 
 from utils import *
 from kh_tools import *
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 
 class ALOCC_Model():
     def __init__(self,
-               input_height=28,input_width=28, output_height=28, output_width=28,
+               input_height=32,input_width=32, output_height=32, output_width=32,
                attention_label=1, is_training=True,
                z_dim=100, gf_dim=16, df_dim=16, c_dim=3,
                dataset_name=None, dataset_address=None, input_fname_pattern=None,
@@ -95,14 +95,13 @@ class ALOCC_Model():
           logging.basicConfig(filename='ALOCC_loss.log', level=logging.INFO)
 
         if self.dataset_name == 'mnist':
-          (X_train, y_train), (_, _) = mnist.load_data()
-          # Make the data range between 0~1.
-          X_train = X_train / 255
-          specific_idx = np.where(y_train == self.attention_label)[0]
-          self.data = X_train[specific_idx].reshape(-1, 28, 28, 1)
-          self.c_dim = 1
+            X_train = np.load("/Users/chenjingkun/Documents/data/BraTS19/npy/25_100/health_train_25_100.npy")
+            X_train = X_train[:,:,:,np.newaxis]
+            print(X_train.shape)
+            self.data = X_train
+            self.c_dim = 1
         else:
-          assert('Error in loading dataset')
+            assert('Error in loading dataset')
 
         self.grayscale = (self.c_dim == 1)
         self.build_model()
@@ -140,7 +139,7 @@ class ALOCC_Model():
         x = UpSampling2D((2, 2))(x)
         x = Conv2D(self.gf_dim*1, kernel_size=5, activation='relu', padding='same')(x)
         x = UpSampling2D((2, 2))(x)
-        x = Conv2D(self.gf_dim*2, kernel_size=3, activation='relu')(x)
+        x = Conv2D(self.gf_dim*2, kernel_size=3, activation='relu', padding='same')(x)
         x = UpSampling2D((2, 2))(x)
         x = Conv2D(self.c_dim, kernel_size=5, activation='sigmoid', padding='same')(x)
         return Model(image, x, name='R')
@@ -199,7 +198,6 @@ class ALOCC_Model():
         # d4 = d_layer(d3, self.df_dim*8)
 
         validity = Conv2D(1, kernel_size=4, strides=1, padding='same')(d3)
-
         return Model(img_A, validity)
 
     def build_model(self):
@@ -262,8 +260,7 @@ class ALOCC_Model():
         # Export images as montage, sample_input also use later to generate sample R network outputs during training.
         sample_inputs = np.array(sample).astype(np.float32)
         os.makedirs(self.sample_dir, exist_ok=True)
-        scipy.misc.imsave('./{}/train_input_samples.jpg'.format(self.sample_dir), montage(sample_inputs[:,:,:,0]))
-
+      
         counter = 1
         # Record generator/R network reconstruction training losses.
         plot_epochs = []
@@ -315,8 +312,6 @@ class ALOCC_Model():
                         samples = self.generator.predict(sample_inputs)
                         manifold_h = int(np.ceil(np.sqrt(samples.shape[0])))
                         manifold_w = int(np.floor(np.sqrt(samples.shape[0])))
-                        save_images(samples, [manifold_h, manifold_w],
-                            './{}/train_{:02d}_{:04d}.png'.format(self.sample_dir, epoch, idx))
 
             # Save the checkpoint end of each epoch.
             self.save(epoch)
@@ -346,5 +341,5 @@ class ALOCC_Model():
 
 
 if __name__ == '__main__':
-    model = ALOCC_Model(dataset_name='mnist', input_height=28,input_width=28)
-    model.train(epochs=5, batch_size=128, sample_interval=500)
+    model = ALOCC_Model(dataset_name='mnist', input_height=32,input_width=32)
+    model.train(epochs=100, batch_size=128, sample_interval=500)
